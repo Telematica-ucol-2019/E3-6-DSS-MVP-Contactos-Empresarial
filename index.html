@@ -18,7 +18,7 @@
     <!--- NavBar -->
     <nav class="navbar navbar-expand-lg navbar navbar-light" style="background-color: #b3dde3;">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">User access manager</a>
+          <a class="navbar-brand" href="#">Enterprise Contacts App</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -40,6 +40,16 @@
       
       <!-- welcome message -->
       <h1 hidden id="welcome-message"></h1>
+      <table id="table">
+        <tr >
+          <th colspan="1" width="200" style="border-width: 1px">Name</th>
+          <th colspan="1" width="189" style="border-width: 1px">Email</th>
+          <th colspan="1" width="100" style="border-width: 1px">Phone</th>
+          <th colspan="1" width="70" style="border-width: 1px">Role</th>
+          <th colspan="1" width="150" style="border-width: 1px">Area</th>
+          <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
+        </tr>
+      </table>
   <!-- MODALS -->
 
   <!-- sign up -->
@@ -52,6 +62,7 @@
         </div>
         <div class="modal-body">
             <form id="signup-form">
+              <!-- credenciales del usuario -->
                 <div class="form-group">
                     <input type="text" id="signup-email" class="form-control"
                     placeholder="Email" required>
@@ -59,6 +70,19 @@
                 <div class="form-group">
                     <input type="Password" id="signup-password" class="form-control" placeholder="Password" required>
                 </div> <br/>
+
+                <!-- datos de contacto del usuario -->
+                <div class="form-group">
+                  <input type="Name" id="signup-name" class="form-control" placeholder="Name" required>
+                </div> <br/>
+                <div class="form-group">
+                    <input type="tel" id="signup-phone" class="form-control" placeholder="Phone number" required>
+                </div> <br/>
+                <div class="form-group">
+                  <input type="area" id="signup-area" class="form-control" placeholder="Area" required>
+                </div> <br/>
+
+
                 <div>
                     <button type="submit" class="btn btn-primary">
                         SignUp
