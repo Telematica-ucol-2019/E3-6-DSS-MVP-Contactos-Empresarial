@@ -1,12 +1,17 @@
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-auth.js";
 import "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"
 import { getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js"
-import {newUser, newContact, db, doc, collection, getDocFromCache, getDoc, deleteContacts} from './firebase.js'
+import {newUser, db, doc, collection, getDocFromCache, 
+    getDoc, deleteContacts, getContact, updateContact, 
+    query, where, onGetContacts, deleteUsersRev, getUser, updateUser, addNewUser} from './firebase.js'
 //console.log(auth);
 const signupForm = document.querySelector('#signup-form')
-
 const auth = getAuth();
-const contactsContainer = document.getElementById('table')
+const usersContainer = document.getElementById('table')
+const contactsContainer = document.getElementById('tableContacts')
+
+let editStatus = false;
+let id = '';
 
 //sign up
 signupForm.addEventListener('submit', (e) => {
@@ -87,7 +92,7 @@ loginForm.addEventListener('submit', e =>{
 
             
 })
-
+console.log(editStatus);
 const addNewContact = document.querySelector('#nContact-form')
 // addContacts
 addNewContact.addEventListener('submit', e =>{
@@ -97,11 +102,22 @@ addNewContact.addEventListener('submit', e =>{
     const addContArea = document.querySelector('#nContact-area').value
     const addContEmail = document.querySelector('#nContact-email').value
 
-    newContact(addContArea, addContEmail, addContName ,addContPhone)
-    addNewContact.reset()
-    //hide modal
+    if (!editStatus){
+        addNewUser(addContArea, addContEmail, addContName ,addContPhone, true)
+    } else {
+        updateUser(id, {
+            area: addContArea,
+            email: addContEmail, 
+            name: addContName,
+            phone: addContPhone
+        })
+        editStatus = false;
+    }
+        addNewContact.reset()
+        //hide modal
         $('#addContModal').modal('hide')
-        window.location.reload();
+        
+       setTimeout(() => {window.location.reload();}, 400);  
 })
 
 //logOut
@@ -119,6 +135,9 @@ logout.addEventListener('click', e =>{
 const loginButton = document.querySelector('#loginButton')
 const signUpButton = document.querySelector('#signUpButton')
 const logOutButton = document.querySelector('#logout')
+const addContactButton = document.querySelector('#addContBtn')
+
+
 const message = document.querySelector('#welcome-message')
 
 
@@ -129,17 +148,16 @@ auth.onAuthStateChanged(async user => {
         logOutButton.hidden = false
 
         //const q = query(usersRef, where(, "==", "CA"));
-        const usersRef = collection(db, "users")
         // console.log(user.uid);
         // console.log(doc(db, "users", user.uid));
         // console.log(doc(usersRef, user.uid));
         
         
-            
-            const docRef = doc(db, "users", user.uid)
-            const docSnap = await getDoc(docRef)
-            const userName = docSnap.data().name
-            const userRole = docSnap.data().role
+        const usersRef = collection(db, "users")
+        const docRef = doc(db, "users", user.uid)
+        const docSnap = await getDoc(docRef)
+        const userName = docSnap.data().name
+        const userRole = docSnap.data().role
             
             // console.log("Document data: ");
             // console.log(docSnap.data());
@@ -147,45 +165,200 @@ auth.onAuthStateChanged(async user => {
 
         console.log(userRole)
 
-        if (userRole == "admin") {
-            document.getElementById('table').hidden = false;
 
-            const query = await getDocs(collection(db, "users"));
-            query.forEach( (doc) => {
-                 console.log(doc.id, " => ", doc.data());
-                 // message.innerHTML = (`User: ${doc.id} => ${doc.data().role}`)
-                 document.getElementById('table').innerHTML += 
-               
-                 `<tr>
-                    <td style="border-width: 1px"> ${doc.data().name}</td> 
-                    <td style="border-width: 1px"> ${doc.data().email}</td> 
-                    <td style="border-width: 1px"> ${doc.data().phone}</td> 
-                    <td style="border-width: 1px"> ${doc.data().role}</td> 
-                    <td style="border-width: 1px"> ${doc.data().area}</td>
-                    <td style="border-width: 1px">
-                    <button class='editBtn' data-id="${doc.id}">Edit</button>
-                    <button class='delBtn' data-id="${doc.id}">Delete</button></td>
-                 </tr>`
-            });
+
+
+        if (userRole == "reviewer") {
+            
+            usersContainer.hidden = false;
+            //addContactButton.hidden = false
+
+            const queryInactiveUsers = query(usersRef, where("active", "==", false))
+            const queryDocsInactiveUsers = await getDocs(queryInactiveUsers);
+                //onGetContacts(async (querySnapshot) => {
+            
+                usersContainer.innerHTML = ""
+                usersContainer.innerHTML += 
+                    `<tr>
+                        <th colspan="1" width="200" style="border-width: 1px">Name</th>
+                        <th colspan="1" width="189" style="border-width: 1px">Email</th>
+                        <th colspan="1" width="100" style="border-width: 1px">Phone</th>
+                        <th colspan="1" width="150" style="border-width: 1px">Area</th>
+                        <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
+                    </tr>`
+                    
+                    //DB LISTENING
+                    //querySnapshot.forEach((doc) => {
+                        
+
+                    //MAMARRACHA WAY
+                    // const query = await getDocs(collection(db, "contacts"));
+
+
+                    queryDocsInactiveUsers.forEach( (doc) => {
+
+                    usersContainer.innerHTML += 
+                    `<tr>
+                       <td style="border-width: 1px"> ${doc.data().name}</td> 
+                       <td style="border-width: 1px"> ${doc.data().email}</td> 
+                       <td style="border-width: 1px"> ${doc.data().phone}</td> 
+                       <td style="border-width: 1px"> ${doc.data().area}</td>
+                       <td style="border-width: 1px">
+                       <button class='editBtn' data-id="${doc.id}" href="#"
+                       data-bs-toggle="modal" data-bs-target="#addContModal">Edit</button>
+                       <button class='actBtn' data-id="${doc.id}">Activate</button></td>
+                    </tr>`
+               });
+
+            //})
         }
 
-        const btnsDelete = contactsContainer.querySelectorAll('.delBtn')
-        const btnsEdit = contactsContainer.querySelectorAll('.editBtn')
-        console.log(btnsDelete)
+
+
+        
+        if (userRole == "admin") {
+            
+            usersContainer.hidden = false;
+            addContactButton.hidden = false
+
+            const queryActiveUsers = query(usersRef, where("active", "==", true))
+            const queryDocsActiveUsers = await getDocs(queryActiveUsers);
+                //onGetContacts(async (querySnapshot) => {
+            
+                
+                usersContainer.innerHTML = ""
+                usersContainer.innerHTML += 
+                    `<tr>
+                        <th colspan="1" width="200" style="border-width: 1px">Name</th>
+                        <th colspan="1" width="189" style="border-width: 1px">Email</th>
+                        <th colspan="1" width="100" style="border-width: 1px">Phone</th>
+                        <th colspan="1" width="150" style="border-width: 1px">Area</th>
+                        <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
+                    </tr>`
+                    
+                    //DB LISTENING
+                    //querySnapshot.forEach((doc) => {
+                        
+
+                    //MAMARRACHA WAY
+                    // const query = await getDocs(collection(db, "contacts"));
+
+
+                    queryDocsActiveUsers.forEach( (doc) => {
+
+                    usersContainer.innerHTML += 
+                    `<tr>
+                       <td style="border-width: 1px"> ${doc.data().name}</td> 
+                       <td style="border-width: 1px"> ${doc.data().email}</td> 
+                       <td style="border-width: 1px"> ${doc.data().phone}</td> 
+                       <td style="border-width: 1px"> ${doc.data().area}</td>
+                       <td style="border-width: 1px">
+                       <button class='editBtn' data-id="${doc.id}" href="#"
+                       data-bs-toggle="modal" data-bs-target="#addContModal">Edit</button>
+                       <button class='delBtn' data-id="${doc.id}">Delete</button>
+                       <button class='deactBtn' data-id="${doc.id}">Deactivate</button></td>
+                    </tr>`
+               });
+
+            //})
+
+        }
+
+        // Revisor btns
+        const btnsActivate = usersContainer.querySelectorAll('.actBtn')
+        const btnsEditRev = usersContainer.querySelectorAll('.editBtn')
+        console.log(btnsActivate)
+        console.log(btnsEditRev)
+        console.log(usersContainer)
+
+
+
+        //Admin btns
+        console.log(contactsContainer)
+
+        const btnsDelete = usersContainer.querySelectorAll('.delBtn')
+        const btnsEdit = usersContainer.querySelectorAll('.editBtn')
+        const btnsDeactivate = usersContainer.querySelectorAll('.deactBtn')
+        // console.log(btnsDelete)
+        // console.log(btnsEdit)
+        // console.log(btnsDeactivate)
+
+
+
+        // btnsDeleteRev.forEach(btn =>{
+        //     btn.addEventListener('click', ({target: {dataset}}) => {
+        //         console.log(dataset.id)
+        //         deleteUsersRev(dataset.id)
+        //         setTimeout(() => {window.location.reload();}, 220); 
+        //     })
+        // })
+
+        btnsEditRev.forEach((btn) =>{
+            btn.addEventListener('click', async (e) => {
+               const doc = await getUser(e.target.dataset.id)
+               //console.log(doc.data())
+               const user = doc.data()
+
+               addNewContact['nContact-name'].value = user.name
+               addNewContact['nContact-phone'].value = user.phone
+               addNewContact['nContact-area'].value = user.area
+               addNewContact['nContact-email'].value = user.email
+
+               editStatus = true;
+               id = doc.id;
+
+               addNewContact['updateFormBtn'].innerText = 'Update'
+               
+            })
+        })
 
         btnsDelete.forEach(btn =>{
-            btn.addEventListener('click', ({target: {dataset}}) => {
-                // console.log(dataset.id)
-                deleteContacts(dataset.id)
-                window.location.reload();
+            // btn.addEventListener('click', ({target: {dataset}}) => {
+            //     console.log(dataset.id)
+            //     // deleteContacts(dataset.id)
+            //     // setTimeout(() => {window.location.reload();}, 500);
+                
+                
+            //     //user = getUser(dataset.id)
+            //     deleteUser(dataset.id).then(() => {
+
+            //         console.log(`User deleted`)
+            //     })
+            // })
+        })
+
+
+        btnsDeactivate.forEach((btn) => {
+            btn.addEventListener('click', ({target: {dataset}}) =>{
+                console.log(dataset.id)
+                updateUser(dataset.id, {
+                    active: false
+                })
+                
             })
         })
 
-        btnsEdit.forEach(btn =>{
-            btn.addEventListener('click', ({target: {dataset}}) => {
-                console.log(dataset.id)
+
+        btnsEdit.forEach((btn) =>{
+            btn.addEventListener('click', async (e) => {
+               const doc = await getUser(e.target.dataset.id)
+               //console.log(doc.data())
+               const contact = doc.data()
+
+               addNewContact['nContact-name'].value = contact.name
+               addNewContact['nContact-phone'].value = contact.phone
+               addNewContact['nContact-area'].value = contact.area
+               addNewContact['nContact-email'].value = contact.email
+
+               editStatus = true;
+               id = doc.id;
+
+               addNewContact['updateFormBtn'].innerText = 'Update'
+               
             })
         })
+
+        
         
         
         // console.log(usersRef);
@@ -193,7 +366,10 @@ auth.onAuthStateChanged(async user => {
 
         message.innerHTML = `Bienvenido: ${user.email}`
     } else {
-        document.getElementById('table').hidden = true;
+        usersContainer.hidden = true;
+        document.getElementById('tableContacts').hidden = true;
+
+        addContactButton.hidden = true;
         loginButton.hidden = false
         signUpButton.hidden = false
         logOutButton.hidden = true
