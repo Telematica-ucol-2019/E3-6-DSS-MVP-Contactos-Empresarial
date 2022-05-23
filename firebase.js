@@ -46,7 +46,9 @@ export const newUser = (id, correo, rol, area) => {
 */
 
 export const newUser = async (id, email, role, name, phone, area, active) => {
-
   await setDoc(doc(db, 'users', id), {email, role, name, phone, area, active})
+}
 
+export const newContact = async (area, email, name, phone) => {
+  await addDoc(collection(db, 'contacts'), {area, email, name, phone})
 }

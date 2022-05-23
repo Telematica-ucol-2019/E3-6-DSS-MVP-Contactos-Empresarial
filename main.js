@@ -1,9 +1,10 @@
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-auth.js";
 import "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"
 import { getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js"
-import {newUser, db, doc, collection, getDocFromCache, getDoc, deleteContacts} from './firebase.js'
+import {newUser, newContact, db, doc, collection, getDocFromCache, getDoc, deleteContacts} from './firebase.js'
 //console.log(auth);
 const signupForm = document.querySelector('#signup-form')
+
 const auth = getAuth();
 const contactsContainer = document.getElementById('table')
 
@@ -87,6 +88,22 @@ loginForm.addEventListener('submit', e =>{
             
 })
 
+const addNewContact = document.querySelector('#nContact-form')
+// addContacts
+addNewContact.addEventListener('submit', e =>{
+    e.preventDefault();
+    const addContName = document.querySelector('#nContact-name').value
+    const addContPhone = document.querySelector('#nContact-phone').value
+    const addContArea = document.querySelector('#nContact-area').value
+    const addContEmail = document.querySelector('#nContact-email').value
+
+    newContact(addContArea, addContEmail, addContName ,addContPhone)
+    addNewContact.reset()
+    //hide modal
+        $('#addContModal').modal('hide')
+        window.location.reload();
+})
+
 //logOut
 
 const logout = document.querySelector('#logout')
@@ -94,7 +111,7 @@ const logout = document.querySelector('#logout')
 logout.addEventListener('click', e =>{
     e.preventDefault();
     auth.signOut().then(() =>{
-        console.log('señal afuera')
+        console.log('Logged out')
     })
 })
 
@@ -119,17 +136,20 @@ auth.onAuthStateChanged(async user => {
         
         
             
-            // const docRef = doc(db, "users", user.uid);
-            // const docSnap = await getDoc(docRef);
-            // const userName = docSnap.data().name
-            // const userRole = docSnap.data().Role
+            const docRef = doc(db, "users", user.uid)
+            const docSnap = await getDoc(docRef)
+            const userName = docSnap.data().name
+            const userRole = docSnap.data().role
             
             // console.log("Document data: ");
             // console.log(docSnap.data());
-            // console.log("User name: " + userName);
+            //console.log("User name: " + userName);
 
-        
-        
+        console.log(userRole)
+
+        if (userRole == "admin") {
+            document.getElementById('table').hidden = false;
+
             const query = await getDocs(collection(db, "users"));
             query.forEach( (doc) => {
                  console.log(doc.id, " => ", doc.data());
@@ -147,6 +167,7 @@ auth.onAuthStateChanged(async user => {
                     <button class='delBtn' data-id="${doc.id}">Delete</button></td>
                  </tr>`
             });
+        }
 
         const btnsDelete = contactsContainer.querySelectorAll('.delBtn')
         const btnsEdit = contactsContainer.querySelectorAll('.editBtn')
@@ -172,6 +193,7 @@ auth.onAuthStateChanged(async user => {
 
         message.innerHTML = `Bienvenido: ${user.email}`
     } else {
+        document.getElementById('table').hidden = true;
         loginButton.hidden = false
         signUpButton.hidden = false
         logOutButton.hidden = true
