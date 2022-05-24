@@ -56,23 +56,8 @@
         data-bs-toggle="modal" data-bs-target="#addContModal"
         hidden="true">Add new</button> 
       </div> <br/>
-
-      <div>
-        <table id="tableContacts" hidden="true" style="display:inline-block; margin-right: 10px;">
-          <tr >
-            <th colspan="1" width="200" style="border-width: 1px">Name</th>
-            <th colspan="1" width="189" style="border-width: 1px">Email</th>
-            <th colspan="1" width="100" style="border-width: 1px">Phone</th>
-
-            <th colspan="1" width="150" style="border-width: 1px">Area</th>
-            <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
-          </tr>
-        </table>
-        
-      </div>
       
 
-    
   <!-- MODALS -->
 
   <!-- sign up -->
@@ -101,9 +86,18 @@
                 <div class="form-group">
                     <input type="tel" id="signup-phone" class="form-control" placeholder="Phone number" required>
                 </div> <br/>
-                <div class="form-group">
-                  <input type="area" id="signup-area" class="form-control" placeholder="Area" required>
-                </div> <br/>
+
+
+                <select class="form-select" aria-label="Default select example" id="signup-area" required>
+                  <option value="" selected>Select your area</option>
+                  <option value="Accounting">Accounting</option>
+                  <option value="Administration">Administration</option>
+                  <option value="Human Resources">Human Resources</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Production">Production</option>
+                </select><br>
+
+
 
 
                 <div>
@@ -162,9 +156,19 @@
                 <div class="form-group">
                     <input type="tel" id="nContact-phone" class="form-control" placeholder="Phone number" required>
                 </div> <br/>
-                <div class="form-group">
+                <!-- <div class="form-group">
                   <input type="area" id="nContact-area" class="form-control" placeholder="Area" required>
-                </div> <br/>
+                </div> <br/> -->
+
+                <select class="form-select" aria-label="Default select example" id="nContact-area" required>
+                  <option value="" selected>Select your area</option>
+                  <option value="Accounting">Accounting</option>
+                  <option value="Administration">Administration</option>
+                  <option value="Human Resources">Human Resources</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Production">Production</option>
+                </select><br>
+
                 <div class="form-group">
                   <input type="email" id="nContact-email" class="form-control" placeholder="Email" required>
                 </div> <br/>

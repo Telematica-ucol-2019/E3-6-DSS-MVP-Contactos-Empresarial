@@ -8,7 +8,7 @@ import {newUser, db, doc, collection, getDocFromCache,
 const signupForm = document.querySelector('#signup-form')
 const auth = getAuth();
 const usersContainer = document.getElementById('table')
-const contactsContainer = document.getElementById('tableContacts')
+
 
 let editStatus = false;
 let id = '';
@@ -21,7 +21,6 @@ signupForm.addEventListener('submit', (e) => {
     const signupName = document.querySelector('#signup-name').value
     const signupPhone = document.querySelector('#signup-phone').value
     const signupArea = document.querySelector('#signup-area').value
-
 
         createUserWithEmailAndPassword(auth, signupEmail, signupPassword)
         .then(userCredential => {
@@ -88,11 +87,9 @@ loginForm.addEventListener('submit', e =>{
                         alert('error:' + error.code)
                         break;
                 }
-            })
-
-            
+            }) 
 })
-console.log(editStatus);
+//console.log(editStatus);
 const addNewContact = document.querySelector('#nContact-form')
 // addContacts
 addNewContact.addEventListener('submit', e =>{
@@ -158,6 +155,7 @@ auth.onAuthStateChanged(async user => {
         const docSnap = await getDoc(docRef)
         const userName = docSnap.data().name
         const userRole = docSnap.data().role
+        const userArea = docSnap.data().area
             
             // console.log("Document data: ");
             // console.log(docSnap.data());
@@ -214,8 +212,6 @@ auth.onAuthStateChanged(async user => {
         }
 
 
-
-        
         if (userRole == "admin") {
             
             usersContainer.hidden = false;
@@ -264,17 +260,61 @@ auth.onAuthStateChanged(async user => {
 
         }
 
+
+
+
+        if (userRole == "user") {
+            
+            usersContainer.hidden = false;
+
+
+            const queryActiveUsers = query(usersRef, where("active", "==", true), where("area", "==", userArea))
+            const queryDocsActiveUsers = await getDocs(queryActiveUsers);
+                //onGetContacts(async (querySnapshot) => {
+            
+                
+                usersContainer.innerHTML = ""
+                usersContainer.innerHTML += 
+                    `<tr>
+                        <th colspan="1" width="200" style="border-width: 1px">Name</th>
+                        <th colspan="1" width="189" style="border-width: 1px">Email</th>
+                        <th colspan="1" width="100" style="border-width: 1px">Phone</th>
+                        <th colspan="1" width="150" style="border-width: 1px">Area</th>
+                    </tr>`
+                    
+                    //DB LISTENING
+                    //querySnapshot.forEach((doc) => {
+                        
+
+                    //MAMARRACHA WAY
+                    // const query = await getDocs(collection(db, "contacts"));
+
+
+                    queryDocsActiveUsers.forEach( (doc) => {
+
+                    usersContainer.innerHTML += 
+                    `<tr>
+                       <td style="border-width: 1px"> ${doc.data().name}</td> 
+                       <td style="border-width: 1px"> ${doc.data().email}</td> 
+                       <td style="border-width: 1px"> ${doc.data().phone}</td> 
+                       <td style="border-width: 1px"> ${doc.data().area}</td>
+                    </tr>`
+               });
+
+            //})
+
+        }
+
         // Revisor btns
         const btnsActivate = usersContainer.querySelectorAll('.actBtn')
         const btnsEditRev = usersContainer.querySelectorAll('.editBtn')
-        console.log(btnsActivate)
-        console.log(btnsEditRev)
-        console.log(usersContainer)
+        //console.log(btnsActivate)
+        //console.log(btnsEditRev)
+        //console.log(usersContainer)
 
 
 
         //Admin btns
-        console.log(contactsContainer)
 
         const btnsDelete = usersContainer.querySelectorAll('.delBtn')
         const btnsEdit = usersContainer.querySelectorAll('.editBtn')
@@ -283,16 +323,6 @@ auth.onAuthStateChanged(async user => {
         // console.log(btnsDelete)
         // console.log(btnsEdit)
         // console.log(btnsDeactivate)
-
-
-
-        // btnsDeleteRev.forEach(btn =>{
-        //     btn.addEventListener('click', ({target: {dataset}}) => {
-        //         console.log(dataset.id)
-        //         deleteUsersRev(dataset.id)
-        //         setTimeout(() => {window.location.reload();}, 220); 
-        //     })
-        // })
 
         btnsEditRev.forEach((btn) =>{
             btn.addEventListener('click', async (e) => {
@@ -369,17 +399,9 @@ auth.onAuthStateChanged(async user => {
             })
         })
 
-        
-        
-        
-        // console.log(usersRef);
-
-
         message.innerHTML = `Bienvenido: ${user.email}`
     } else {
         usersContainer.hidden = true;
-        document.getElementById('tableContacts').hidden = true;
-
         addContactButton.hidden = true;
         loginButton.hidden = false
         signUpButton.hidden = false
