@@ -279,6 +279,7 @@ auth.onAuthStateChanged(async user => {
         const btnsDelete = usersContainer.querySelectorAll('.delBtn')
         const btnsEdit = usersContainer.querySelectorAll('.editBtn')
         const btnsDeactivate = usersContainer.querySelectorAll('.deactBtn')
+        
         // console.log(btnsDelete)
         // console.log(btnsEdit)
         // console.log(btnsDeactivate)
@@ -334,7 +335,17 @@ auth.onAuthStateChanged(async user => {
                 updateUser(dataset.id, {
                     active: false
                 })
-                
+                setTimeout(() => {window.location.reload();}, 500);
+            })
+        })
+
+        btnsActivate.forEach((btn) => {
+            btn.addEventListener('click', ({target: {dataset}}) =>{
+                console.log(dataset.id)
+                updateUser(dataset.id, {
+                    active: true
+                })
+                setTimeout(() => {window.location.reload();}, 500);
             })
         })
 
