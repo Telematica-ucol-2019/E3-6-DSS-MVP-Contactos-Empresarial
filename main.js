@@ -4,11 +4,12 @@ import { getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.8.1/fir
 import {newUser, db, doc, collection, getDocFromCache, 
     getDoc, deleteContacts, getContact, updateContact, 
     query, where, onGetContacts, deleteUsersRev, getUser, updateUser, addNewUser} from './firebase.js'
+//import tools from './functions.js'
+
 //console.log(auth);
 const signupForm = document.querySelector('#signup-form')
 const auth = getAuth();
 const usersContainer = document.getElementById('table')
-
 
 let editStatus = false;
 let id = '';
@@ -90,9 +91,17 @@ loginForm.addEventListener('submit', e =>{
             }) 
 })
 //console.log(editStatus);
-const addNewContact = document.querySelector('#nContact-form')
+const newContactForm = document.querySelector('#nContact-form')
 // addContacts
-addNewContact.addEventListener('submit', e =>{
+
+const addContactButton = document.querySelector('#addContBtn')
+addContactButton.addEventListener('click', () =>{
+    editStatus = false;
+    newContactForm.reset()
+    newContactForm['updateFormBtn'].innerText = 'Add contact'
+    console.log(editStatus);
+})
+newContactForm.addEventListener('submit', e =>{
     e.preventDefault();
     const addContName = document.querySelector('#nContact-name').value
     const addContPhone = document.querySelector('#nContact-phone').value
@@ -110,7 +119,7 @@ addNewContact.addEventListener('submit', e =>{
         })
         editStatus = false;
     }
-        addNewContact.reset()
+        newContactForm.reset()
         //hide modal
         $('#addContModal').modal('hide')
         
@@ -132,7 +141,6 @@ logout.addEventListener('click', e =>{
 const loginButton = document.querySelector('#loginButton')
 const signUpButton = document.querySelector('#signUpButton')
 const logOutButton = document.querySelector('#logout')
-const addContactButton = document.querySelector('#addContBtn')
 
 
 const message = document.querySelector('#welcome-message')
@@ -234,12 +242,12 @@ auth.onAuthStateChanged(async user => {
                     
                     //DB LISTENING
                     //querySnapshot.forEach((doc) => {
-                        
-
+                    
                     //MAMARRACHA WAY
                     // const query = await getDocs(collection(db, "contacts"));
+                
 
-
+                    //No listening
                     queryDocsActiveUsers.forEach( (doc) => {
 
                     usersContainer.innerHTML += 
@@ -254,8 +262,11 @@ auth.onAuthStateChanged(async user => {
                        <button class='delBtn' data-id="${doc.id}">Delete</button>
                        <button class='deactBtn' data-id="${doc.id}">Deactivate</button></td>
                     </tr>`
-               });
+                    //No listening
+                    });
 
+                    //listening
+                    //}
             //})
 
         }
@@ -330,15 +341,15 @@ auth.onAuthStateChanged(async user => {
                //console.log(doc.data())
                const user = doc.data()
 
-               addNewContact['nContact-name'].value = user.name
-               addNewContact['nContact-phone'].value = user.phone
-               addNewContact['nContact-area'].value = user.area
-               addNewContact['nContact-email'].value = user.email
+               newContactForm['nContact-name'].value = user.name
+               newContactForm['nContact-phone'].value = user.phone
+               newContactForm['nContact-area'].value = user.area
+               newContactForm['nContact-email'].value = user.email
 
                editStatus = true;
                id = doc.id;
 
-               addNewContact['updateFormBtn'].innerText = 'Update'
+               newContactForm['updateFormBtn'].innerText = 'Update'
                
             })
         })
@@ -384,17 +395,17 @@ auth.onAuthStateChanged(async user => {
             btn.addEventListener('click', async (e) => {
                const doc = await getUser(e.target.dataset.id)
                //console.log(doc.data())
-               const contact = doc.data()
+               const user = doc.data()
 
-               addNewContact['nContact-name'].value = contact.name
-               addNewContact['nContact-phone'].value = contact.phone
-               addNewContact['nContact-area'].value = contact.area
-               addNewContact['nContact-email'].value = contact.email
+               newContactForm['nContact-name'].value = user.name + "oo"
+               newContactForm['nContact-phone'].value = user.phone
+               newContactForm['nContact-area'].value = user.area
+               newContactForm['nContact-email'].value = user.email
 
                editStatus = true;
                id = doc.id;
 
-               addNewContact['updateFormBtn'].innerText = 'Update'
+               newContactForm['updateFormBtn'].innerText = 'Update'
                
             })
         })
