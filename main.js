@@ -3,8 +3,10 @@ import "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"
 import { getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js"
 import {newUser, db, doc, collection, getDocFromCache, 
     getDoc, deleteContacts, getContact, updateContact, 
-    query, where, onGetContacts, deleteUsersRev, getUser, updateUser, addNewUser} from './firebase.js'
-//import tools from './functions.js'
+    query, where, onGetUsers, deleteUsersRev, getUser, updateUser, addNewUser, onSnapshot} from './firebase.js'
+
+import tools from './functions.js'
+
 
 //console.log(auth);
 const signupForm = document.querySelector('#signup-form')
@@ -123,7 +125,7 @@ newContactForm.addEventListener('submit', e =>{
         //hide modal
         $('#addContModal').modal('hide')
         
-       setTimeout(() => {window.location.reload();}, 400);  
+       //setTimeout(() => {window.location.reload();}, 400);  
 })
 
 //logOut
@@ -147,6 +149,9 @@ const message = document.querySelector('#welcome-message')
 
 
 auth.onAuthStateChanged(async user => {
+    // var btnsDelete
+    // var btnsEdit
+    // var btnsDeactivate
     if(user){
         loginButton.hidden = true
         signUpButton.hidden = true
@@ -175,48 +180,76 @@ auth.onAuthStateChanged(async user => {
 
 
         if (userRole == "reviewer") {
-            
+
             usersContainer.hidden = false;
-            //addContactButton.hidden = false
 
             const queryInactiveUsers = query(usersRef, where("active", "==", false))
             const queryDocsInactiveUsers = await getDocs(queryInactiveUsers);
+            
+
                 //onGetContacts(async (querySnapshot) => {
             
-                usersContainer.innerHTML = ""
-                usersContainer.innerHTML += 
-                    `<tr>
-                        <th colspan="1" width="200" style="border-width: 1px">Name</th>
-                        <th colspan="1" width="189" style="border-width: 1px">Email</th>
-                        <th colspan="1" width="100" style="border-width: 1px">Phone</th>
-                        <th colspan="1" width="150" style="border-width: 1px">Area</th>
-                        <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
-                    </tr>`
-                    
-                    //DB LISTENING
-                    //querySnapshot.forEach((doc) => {
-                        
+                onSnapshot(queryInactiveUsers, (querySnapshot) => {
 
-                    //MAMARRACHA WAY
-                    // const query = await getDocs(collection(db, "contacts"));
-
-
-                    queryDocsInactiveUsers.forEach( (doc) => {
-
+                    usersContainer.innerHTML = ""
                     usersContainer.innerHTML += 
-                    `<tr>
-                       <td style="border-width: 1px"> ${doc.data().name}</td> 
-                       <td style="border-width: 1px"> ${doc.data().email}</td> 
-                       <td style="border-width: 1px"> ${doc.data().phone}</td> 
-                       <td style="border-width: 1px"> ${doc.data().area}</td>
-                       <td style="border-width: 1px">
-                       <button class='editBtn' data-id="${doc.id}" href="#"
-                       data-bs-toggle="modal" data-bs-target="#addContModal">Edit</button>
-                       <button class='actBtn' data-id="${doc.id}">Activate</button></td>
-                    </tr>`
-               });
+                        `<tr>
+                            <th colspan="1" width="200" style="border-width: 1px">Name</th>
+                            <th colspan="1" width="189" style="border-width: 1px">Email</th>
+                            <th colspan="1" width="100" style="border-width: 1px">Phone</th>
+                            <th colspan="1" width="150" style="border-width: 1px">Area</th>
+                            <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
+                        </tr>`
+                        
+                        
+                    querySnapshot.forEach((doc) => {
+                        usersContainer.innerHTML += 
+                        `<tr>
+                           <td style="border-width: 1px"> ${doc.data().name}</td> 
+                           <td style="border-width: 1px"> ${doc.data().email}</td> 
+                           <td style="border-width: 1px"> ${doc.data().phone}</td> 
+                           <td style="border-width: 1px"> ${doc.data().area}</td>
+                           <td style="border-width: 1px">
+                           <button class='editBtn' data-id="${doc.id}" href="#"
+                           data-bs-toggle="modal" data-bs-target="#addContModal">Edit</button>
+                           <button class='actBtn' data-id="${doc.id}">Activate</button></td>
+                        </tr>`
+                    })
 
-            //})
+                    const btnsEdit = usersContainer.querySelectorAll('.editBtn')
+                    const btnsActivate = usersContainer.querySelectorAll('.actBtn')
+
+                    btnsEdit.forEach((btn) =>{
+                        btn.addEventListener('click', async (e) => {
+                           const doc = await getUser(e.target.dataset.id)
+                           //console.log(doc.data())
+                           const user = doc.data()
+            
+                           newContactForm['nContact-name'].value = user.name
+                           newContactForm['nContact-phone'].value = user.phone
+                           newContactForm['nContact-area'].value = user.area
+                           newContactForm['nContact-email'].value = user.email
+            
+                           editStatus = true;
+                           id = doc.id;
+            
+                           newContactForm['updateFormBtn'].innerText = 'Update'
+                           
+                        })
+                    })
+
+                    btnsActivate.forEach((btn) => {
+                        btn.addEventListener('click', ({target: {dataset}}) =>{
+                            console.log(dataset.id)
+                            updateUser(dataset.id, {
+                                active: true
+                            })
+                            //setTimeout(() => {window.location.reload();}, 500);
+                        })
+                    })
+
+                })
+
         }
 
 
@@ -227,48 +260,76 @@ auth.onAuthStateChanged(async user => {
 
             const queryActiveUsers = query(usersRef, where("active", "==", true))
             const queryDocsActiveUsers = await getDocs(queryActiveUsers);
+            
+
                 //onGetContacts(async (querySnapshot) => {
             
-                
-                usersContainer.innerHTML = ""
-                usersContainer.innerHTML += 
-                    `<tr>
-                        <th colspan="1" width="200" style="border-width: 1px">Name</th>
-                        <th colspan="1" width="189" style="border-width: 1px">Email</th>
-                        <th colspan="1" width="100" style="border-width: 1px">Phone</th>
-                        <th colspan="1" width="150" style="border-width: 1px">Area</th>
-                        <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
-                    </tr>`
-                    
-                    //DB LISTENING
-                    //querySnapshot.forEach((doc) => {
-                    
-                    //MAMARRACHA WAY
-                    // const query = await getDocs(collection(db, "contacts"));
-                
+                onSnapshot(queryActiveUsers, (querySnapshot) => {
 
-                    //No listening
-                    queryDocsActiveUsers.forEach( (doc) => {
-
+                    usersContainer.innerHTML = ""
                     usersContainer.innerHTML += 
-                    `<tr>
-                       <td style="border-width: 1px"> ${doc.data().name}</td> 
-                       <td style="border-width: 1px"> ${doc.data().email}</td> 
-                       <td style="border-width: 1px"> ${doc.data().phone}</td> 
-                       <td style="border-width: 1px"> ${doc.data().area}</td>
-                       <td style="border-width: 1px">
-                       <button class='editBtn' data-id="${doc.id}" href="#"
-                       data-bs-toggle="modal" data-bs-target="#addContModal">Edit</button>
-                       <button class='delBtn' data-id="${doc.id}">Delete</button>
-                       <button class='deactBtn' data-id="${doc.id}">Deactivate</button></td>
-                    </tr>`
-                    //No listening
-                    });
+                        `<tr>
+                            <th colspan="1" width="200" style="border-width: 1px">Name</th>
+                            <th colspan="1" width="189" style="border-width: 1px">Email</th>
+                            <th colspan="1" width="100" style="border-width: 1px">Phone</th>
+                            <th colspan="1" width="150" style="border-width: 1px">Area</th>
+                            <th colspan="1" width="150" style="border-width: 1px">Manage</th>  
+                        </tr>`
+                        
+                        
+                    querySnapshot.forEach((doc) => {
+                        usersContainer.innerHTML += 
+                        `<tr>
+                           <td style="border-width: 1px"> ${doc.data().name}</td> 
+                           <td style="border-width: 1px"> ${doc.data().email}</td> 
+                           <td style="border-width: 1px"> ${doc.data().phone}</td> 
+                           <td style="border-width: 1px"> ${doc.data().area}</td>
+                           <td style="border-width: 1px">
+                           <button class='editBtn' data-id="${doc.id}" href="#"
+                           data-bs-toggle="modal" data-bs-target="#addContModal">Edit</button>
+                           <button class='delBtn' data-id="${doc.id}">Delete</button>
+                           <button class='deactBtn' data-id="${doc.id}">Deactivate</button></td>
+                        </tr>`
+                    })
 
-                    //listening
-                    //}
-            //})
+                    // btnsDelete = usersContainer.querySelectorAll('.delBtn')
+                    const btnsEdit = usersContainer.querySelectorAll('.editBtn')
+                    const btnsDeactivate = usersContainer.querySelectorAll('.deactBtn')
 
+                    // console.log(btnsDelete);
+                     console.log(btnsEdit);
+                     console.log(btnsDeactivate);
+
+                     btnsDeactivate.forEach((btn) => {
+                        btn.addEventListener('click', ({target: {dataset}}) =>{
+                            console.log(dataset.id)
+                            updateUser(dataset.id, {
+                                active: false
+                            })
+                            //setTimeout(() => {window.location.reload();}, 500);
+                        })
+                    })
+
+                    btnsEdit.forEach((btn) =>{
+                        btn.addEventListener('click', async (e) => {
+                           const doc = await getUser(e.target.dataset.id)
+                           //console.log(doc.data())
+                           const user = doc.data()
+            
+                           newContactForm['nContact-name'].value = user.name
+                           newContactForm['nContact-phone'].value = user.phone
+                           newContactForm['nContact-area'].value = user.area
+                           newContactForm['nContact-email'].value = user.email
+            
+                           editStatus = true;
+                           id = doc.id;
+            
+                           newContactForm['updateFormBtn'].innerText = 'Update'
+                           
+                        })
+                    })
+                })
+               
         }
 
 
@@ -283,7 +344,8 @@ auth.onAuthStateChanged(async user => {
             const queryDocsActiveUsers = await getDocs(queryActiveUsers);
                 //onGetContacts(async (querySnapshot) => {
             
-                
+            //tools.buildTable(userRole, usersContainer, queryDocsActiveUsers)
+
                 usersContainer.innerHTML = ""
                 usersContainer.innerHTML += 
                     `<tr>
@@ -293,13 +355,6 @@ auth.onAuthStateChanged(async user => {
                         <th colspan="1" width="150" style="border-width: 1px">Area</th>
                     </tr>`
                     
-                    //DB LISTENING
-                    //querySnapshot.forEach((doc) => {
-                        
-
-                    //MAMARRACHA WAY
-                    // const query = await getDocs(collection(db, "contacts"));
-
 
                     queryDocsActiveUsers.forEach( (doc) => {
 
@@ -327,88 +382,33 @@ auth.onAuthStateChanged(async user => {
 
         //Admin btns
 
-        const btnsDelete = usersContainer.querySelectorAll('.delBtn')
-        const btnsEdit = usersContainer.querySelectorAll('.editBtn')
-        const btnsDeactivate = usersContainer.querySelectorAll('.deactBtn')
+        //  const btnsDelete = usersContainer.querySelectorAll('.delBtn')
+        //  const btnsEdit = usersContainer.querySelectorAll('.editBtn')
+        //  const btnsDeactivate = usersContainer.querySelectorAll('.deactBtn')
         
         // console.log(btnsDelete)
         // console.log(btnsEdit)
         // console.log(btnsDeactivate)
 
-        btnsEditRev.forEach((btn) =>{
-            btn.addEventListener('click', async (e) => {
-               const doc = await getUser(e.target.dataset.id)
-               //console.log(doc.data())
-               const user = doc.data()
+        // btnsEditRev.forEach((btn) =>{
+        //     btn.addEventListener('click', async (e) => {
+        //        const doc = await getUser(e.target.dataset.id)
+        //        //console.log(doc.data())
+        //        const user = doc.data()
 
-               newContactForm['nContact-name'].value = user.name
-               newContactForm['nContact-phone'].value = user.phone
-               newContactForm['nContact-area'].value = user.area
-               newContactForm['nContact-email'].value = user.email
+        //        newContactForm['nContact-name'].value = user.name
+        //        newContactForm['nContact-phone'].value = user.phone
+        //        newContactForm['nContact-area'].value = user.area
+        //        newContactForm['nContact-email'].value = user.email
 
-               editStatus = true;
-               id = doc.id;
+        //        editStatus = true;
+        //        id = doc.id;
 
-               newContactForm['updateFormBtn'].innerText = 'Update'
+        //        newContactForm['updateFormBtn'].innerText = 'Update'
                
-            })
-        })
+        //     })
+        // })
 
-        btnsDelete.forEach(btn =>{
-            // btn.addEventListener('click', ({target: {dataset}}) => {
-            //     console.log(dataset.id)
-            //     // deleteContacts(dataset.id)
-            //     // setTimeout(() => {window.location.reload();}, 500);
-                
-                
-            //     //user = getUser(dataset.id)
-            //     deleteUser(dataset.id).then(() => {
-
-            //         console.log(`User deleted`)
-            //     })
-            // })
-        })
-
-
-        btnsDeactivate.forEach((btn) => {
-            btn.addEventListener('click', ({target: {dataset}}) =>{
-                console.log(dataset.id)
-                updateUser(dataset.id, {
-                    active: false
-                })
-                setTimeout(() => {window.location.reload();}, 500);
-            })
-        })
-
-        btnsActivate.forEach((btn) => {
-            btn.addEventListener('click', ({target: {dataset}}) =>{
-                console.log(dataset.id)
-                updateUser(dataset.id, {
-                    active: true
-                })
-                setTimeout(() => {window.location.reload();}, 500);
-            })
-        })
-
-
-        btnsEdit.forEach((btn) =>{
-            btn.addEventListener('click', async (e) => {
-               const doc = await getUser(e.target.dataset.id)
-               //console.log(doc.data())
-               const user = doc.data()
-
-               newContactForm['nContact-name'].value = user.name + "oo"
-               newContactForm['nContact-phone'].value = user.phone
-               newContactForm['nContact-area'].value = user.area
-               newContactForm['nContact-email'].value = user.email
-
-               editStatus = true;
-               id = doc.id;
-
-               newContactForm['updateFormBtn'].innerText = 'Update'
-               
-            })
-        })
 
         message.innerHTML = `Bienvenido: ${user.email}`
     } else {

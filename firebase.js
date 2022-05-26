@@ -18,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const firebaseAuth = getAuth();
 export const db = getFirestore();
-export {doc, collection, getDocFromCache, getDoc, query, where}
+export {doc, collection, getDocFromCache, getDoc, query, where, onSnapshot}
 export const deleteUsersRev = id => deleteDoc(doc(db, 'users', id))
 export const deleteContacts = id => deleteDoc(doc(db, 'contacts', id))
 
@@ -50,7 +50,7 @@ export const newUser = async (id, email, role, name, phone, area, active) => {
   await setDoc(doc(db, 'users', id), {email, role, name, phone, area, active})
 }
 
-export const onGetContacts = (callback) => onSnapshot(collection(db, 'contacts'), callback)
+export const onGetUsers = (callback) => onSnapshot(collection(db, 'users'), callback)
 
 
 
