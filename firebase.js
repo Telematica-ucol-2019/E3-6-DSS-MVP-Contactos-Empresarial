@@ -54,8 +54,8 @@ export const onGetUsers = (callback) => onSnapshot(collection(db, 'users'), call
 
 
 
-export const addNewUser = async (area, email, name, phone, active) => {
-  await addDoc(collection(db, 'users'), {area, email, name, phone, active })
+export const addNewUser = async (area, email, name, phone, role,active) => {
+  await addDoc(collection(db, 'users'), {area, email, name, phone, role, active })
 }
 
 //Update Contacts
