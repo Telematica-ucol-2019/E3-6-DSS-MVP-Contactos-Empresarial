@@ -12,6 +12,7 @@ import tools from './functions.js'
 const signupForm = document.querySelector('#signup-form')
 const auth = getAuth();
 const usersContainer = document.getElementById('table')
+console.log(usersContainer.class);
 var unsubscribe 
 
 let editStatus = false;
@@ -138,6 +139,8 @@ logout.addEventListener('click', e =>{
     auth.signOut().then(() =>{
         unsubscribe();
         usersContainer.innerHTML = ""
+        mainHeaderMessage.hidden = false
+        mainBodyMessage.hidden = false
         console.log('Logged out')
     })
 })
@@ -147,10 +150,11 @@ const loginButton = document.querySelector('#loginButton')
 const signUpButton = document.querySelector('#signUpButton')
 const logOutButton = document.querySelector('#logout')
 
-
+//messages
 const headerMessage = document.querySelector('#welcome-headerMessage')
 const bodyMessage = document.querySelector('#welcome-bodyMessage')
-
+const mainHeaderMessage = document.querySelector('#mainPage-headerMessage')
+const mainBodyMessage = document.querySelector('#mainPage-bodyMessage')
 
 auth.onAuthStateChanged(async user => {
     
@@ -158,6 +162,8 @@ auth.onAuthStateChanged(async user => {
         loginButton.hidden = true
         signUpButton.hidden = true
         logOutButton.hidden = false
+        mainHeaderMessage.hidden = true
+        mainBodyMessage.hidden = true
 
         const usersRef = collection(db, "users")
         const docRef = doc(db, "users", user.uid)
@@ -173,7 +179,6 @@ auth.onAuthStateChanged(async user => {
             usersContainer.hidden = false;
 
             const queryInactiveUsers = query(usersRef, where("active", "==", false), where("role", "==", "user"))
-            const queryDocsInactiveUsers = await getDocs(queryInactiveUsers);
                         
                     unsubscribe = onSnapshot(queryInactiveUsers, (querySnapshot) => {
                     tools.buildTable(userRole, usersContainer, querySnapshot)
@@ -184,17 +189,13 @@ auth.onAuthStateChanged(async user => {
                     btnsEdit.forEach((btn) =>{
                         btn.addEventListener('click', async (e) => {
                            const doc = await getUser(e.target.dataset.id)
-
                            const user = doc.data()
-            
                            newContactForm['nContact-name'].value = user.name
                            newContactForm['nContact-phone'].value = user.phone
                            newContactForm['nContact-area'].value = user.area
                            newContactForm['nContact-email'].value = user.email
-            
                            editStatus = true;
                            id = doc.id;
-            
                            newContactForm['updateFormBtn'].innerText = 'Update'
                            
                         })
@@ -212,9 +213,7 @@ auth.onAuthStateChanged(async user => {
                     })
 
                 })
-
         }
-
 
         if (userRole == "admin") {
             
@@ -222,14 +221,11 @@ auth.onAuthStateChanged(async user => {
             addContactButton.hidden = false
 
             const queryActiveUsers = query(usersRef, where("active", "==", true), where("role", "==", "user"))
-            const queryDocsActiveUsers = await getDocs(queryActiveUsers);
             
-                //onGetContacts(async (querySnapshot) => {
         
                     unsubscribe = onSnapshot(queryActiveUsers, (querySnapshot) => {
                     tools.buildTable(userRole, usersContainer, querySnapshot)
 
-                    // btnsDelete = usersContainer.querySelectorAll('.delBtn')
                     const btnsEdit = usersContainer.querySelectorAll('.editBtn')
                     const btnsDeactivate = usersContainer.querySelectorAll('.deactBtn')
 
@@ -276,14 +272,11 @@ auth.onAuthStateChanged(async user => {
             bodyMessage.hidden = false;
             const queryActiveUsers = query(usersRef, where("active", "==", true), where("area", "==", userArea), where("role", "==", "user"))
             const queryDocsActiveUsers = await getDocs(queryActiveUsers);
-                //onGetContacts(async (querySnapshot) => {
             
             tools.buildTable(userRole, usersContainer, queryDocsActiveUsers)
         }
 
         // Revisor btns
-        const btnsActivate = usersContainer.querySelectorAll('.actBtn')
-        const btnsEditRev = usersContainer.querySelectorAll('.editBtn')
         headerMessage.innerHTML = `Welcome ${userName}!`
         bodyMessage.innerHTML = `Showing contacts from ${userArea} area`
 
@@ -295,7 +288,7 @@ auth.onAuthStateChanged(async user => {
         logOutButton.hidden = true
         headerMessage.hidden = true
         bodyMessage.hidden = true
-
+        mainHeaderMessage.hidden = false
+        mainBodyMessage.hidden = false
     }
 })
-

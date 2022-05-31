@@ -6,8 +6,22 @@
 body{
     font-family: Helvetica;
     -webkit-font-smoothing: antialiased;
-    background: rgba( 71, 147, 227, 1);
+    background: #B9DFEC;
 }
+
+td{
+    font-size: 500px;
+}
+
+/*
+FDFCDC
+gris del juempo e4e5e6de
+gris C0B9B4
+azul 356D92
+gris2 B3CEC1
+gris azul A8D7E7
+*/
+
 h2{
     text-align: center;
     font-size: 18px;
@@ -20,11 +34,11 @@ h2{
 /* Table Styles */
 
 .table-wrapper{
-    margin: 10px 70px 70px;
-    box-shadow: 0px 35px 50px rgba( 0, 0, 0, 0.2 );
+    margin: 10px 80px 70px;
+    box-shadow: 0px 65px 50px rgba( 0, 0, 0, 0.2 );
 }
 
-.table {
+.fl-table {
     border-radius: 5px;
     font-size: 12px;
     font-weight: normal;
@@ -33,38 +47,109 @@ h2{
     width: 100%;
     max-width: 100%;
     white-space: nowrap;
-    background-color: white;
+    background-color: #e4e5e6de
 }
 
-.table td, .table th {
+.fl-table td, .fl-table th {
     text-align: center;
     padding: 8px;
 }
 
-.table td {
-    border-right: 1px solid #f8f8f8;
-    font-size: 12px;
+.fl-table td {
+
+    /*
+    c9c9c9
+    */
+    border-right: 1px solid #B6B6B6;
+    border-bottom: 1px solid #B6B6B6;
+    border-left: 1px solid #B6B6B6;
+    font-size: 14px;
+    
 }
 
-.table thead th {
+.fl-table thead th {
     color: #ffffff;
-    background: #4FC3A1;
+    background: #00AFB9;
+    font-weight: bold;
 }
 
 
-.table thead th:nth-child(odd) {
+.fl-table thead th:nth-child(odd) {
     color: #ffffff;
     background: #324960;
 }
 
-.table tr:nth-child(even) {
+.fl-table tr:nth-child(even) {
     background: #F8F8F8;
+}
+
+.deactBtn{
+    background-color: #f94144;
+    
+}
+
+.editBtn{
+    background-color: #00AFB9;
+}
+
+button {
+  align-items: center;
+  background-color: #0081A7;
+  border: 0;
+  border-radius: 10px;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  max-width: 480px;
+  min-height: 40px;
+  min-width: 0px;
+  overflow: hidden;
+  padding: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+    
+}
+
+
+button:hover,
+button:focus { 
+  background-color: #028090;
+  color: #ffffff;
+}
+
+.deactBtn:hover,
+.deactBtn:focus { 
+  background-color: #c1121f;
+  color: #ffffff;
+}
+
+button:active {
+  background: #09223b;
+  color: rgb(255, 255, 255, .7);
+}
+
+button:disabled { 
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, .08);
+  color: rgba(0, 0, 0, .3);
 }
 
 /* Responsive */
 
 @media (max-width: 767px) {
-    .table {
+    .fl-table {
         display: block;
         width: 100%;
     }
@@ -76,21 +161,21 @@ h2{
         color: white;
         padding: 0 0 10px;
     }
-    .table thead, .table tbody, .table thead th {
+    .fl-table thead, .fl-table tbody, .fl-table thead th {
         display: block;
     }
-    .table thead th:last-child{
+    .fl-table thead th:last-child{
         border-bottom: none;
     }
-    .table thead {
+    .fl-table thead {
         float: left;
     }
-    .table tbody {
+    .fl-table tbody {
         width: auto;
         position: relative;
         overflow-x: auto;
     }
-    .table td, .table th {
+    .fl-table td, .fl-table th {
         padding: 20px .625em .625em .625em;
         height: 60px;
         vertical-align: middle;
@@ -101,27 +186,27 @@ h2{
         font-size: 13px;
         text-overflow: ellipsis;
     }
-    .table thead th {
+    .fl-table thead th {
         text-align: left;
         border-bottom: 1px solid #f7f7f9;
     }
-    .table tbody tr {
+    .fl-table tr {
         display: table-cell;
     }
-    .table tbody tr:nth-child(odd) {
+    .fl-table tbody:nth-child(odd) {
         background: none;
     }
-    .table tr:nth-child(even) {
+    .fl-table tbody:nth-child(even) {
         background: transparent;
     }
-    .table tr td:nth-child(odd) {
+    .fl-table tbody:nth-child(odd) {
         background: #F8F8F8;
         border-right: 1px solid #E6E4E4;
     }
-    .table tr td:nth-child(even) {
+    .fl-table tbody:nth-child(even) {
         border-right: 1px solid #E6E4E4;
     }
-    .table tbody td {
+    .fl-table tbody td {
         display: block;
         text-align: center;
     }
